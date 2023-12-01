@@ -11,7 +11,13 @@ class DayOne() : AoCCommand("day-1") {
         get() = TODO("Not yet implemented")
 
     override fun solveFirstPart(input: String): String {
-        return "Hello day-1"
+        return input.lineSequence()
+            .map { line -> Pair(line.firstOrNull { it.isDigit() }, line.lastOrNull { it.isDigit() }) }
+            .filter { it.first != null && it.second != null }
+            .map { "${it.first}${it.second}" }
+            .map { it.toInt() }
+            .sum()
+            .toString()
     }
 
     override fun solveSecondPart(input: String): String {
