@@ -12,20 +12,20 @@ import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.inputStream
 import java.io.InputStreamReader
 
-enum class AocQuizPart { First, Second }
+enum class AocQuizPart { One, Two }
 
 abstract class AoCCommand(name: String) : CliktCommand(name = name) {
 
     private val demo: Boolean by option("--demo", "-d").flag(default = false)
-    private val part: AocQuizPart by option("--part", "-p").enum<AocQuizPart>().default(AocQuizPart.First)
+    private val part: AocQuizPart by option("--part", "-p").enum<AocQuizPart>().default(AocQuizPart.One)
     private val input: InputStreamReader? by argument().inputStream().convert { it.reader() }.optional()
 
     abstract val firstDemo: String
     abstract val secondDemo: String
     private val demoInput: String
         get() = when (part) {
-            AocQuizPart.First -> firstDemo
-            AocQuizPart.Second -> secondDemo
+            AocQuizPart.One -> firstDemo
+            AocQuizPart.Two -> secondDemo
         }
 
     abstract fun solveFirstPart(input: String): String
@@ -34,8 +34,8 @@ abstract class AoCCommand(name: String) : CliktCommand(name = name) {
     override fun run() {
         val input = getInput()
         val solution = when(part){
-            AocQuizPart.First -> solveFirstPart(input)
-            AocQuizPart.Second -> solveSecondPart(input)
+            AocQuizPart.One -> solveFirstPart(input)
+            AocQuizPart.Two -> solveSecondPart(input)
         }
 
         println("Solution $solution")
