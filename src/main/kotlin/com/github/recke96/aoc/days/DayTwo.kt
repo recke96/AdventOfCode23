@@ -12,8 +12,8 @@ class DayTwo : AoCCommand("day-2") {
         Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
         Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
     """.trimIndent()
-    override val secondDemo: String
-        get() = TODO("Not yet implemented")
+
+    override val secondDemo = firstDemo
 
     override fun solveFirstPart(input: String): String {
         return input.lineSequence()
@@ -28,7 +28,13 @@ class DayTwo : AoCCommand("day-2") {
     }
 
     override fun solveSecondPart(input: String): String {
-        TODO("Not yet implemented")
+        return input.lineSequence()
+            .filter { it.isNotBlank() }
+            .map { GameGrammar.parseOrThrow(it) }
+            .map { it.draws.reduceOrNull(::max) ?: Draw(0, 0, 0) }
+            .map { it.power() }
+            .sum()
+            .toString()
     }
 }
 
@@ -40,6 +46,8 @@ fun max(a: Draw, b: Draw) = Draw(
     kotlin.math.max(a.greens, b.greens),
     kotlin.math.max(a.blues, b.blues)
 )
+
+fun Draw.power() = reds * greens * blues
 
 object GameGrammar : Grammar<Game>() {
 
