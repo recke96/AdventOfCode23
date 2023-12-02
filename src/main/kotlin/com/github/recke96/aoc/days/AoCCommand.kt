@@ -28,12 +28,12 @@ abstract class AoCCommand(name: String) : CliktCommand(name = name) {
             AocQuizPart.Two -> secondDemo
         }
 
-    abstract fun solveFirstPart(input: String): String
-    abstract fun solveSecondPart(input: String): String
+    abstract fun solveFirstPart(input: Sequence<String>): String
+    abstract fun solveSecondPart(input: Sequence<String>): String
 
     override fun run() {
-        val input = getInput()
-        val solution = when(part){
+        val input = getInput().filter { it.isNotEmpty() }
+        val solution = when (part) {
             AocQuizPart.One -> solveFirstPart(input)
             AocQuizPart.Two -> solveSecondPart(input)
         }
@@ -41,13 +41,13 @@ abstract class AoCCommand(name: String) : CliktCommand(name = name) {
         println("Solution \"$solution\"")
     }
 
-    private fun getInput(): String {
-        input.use { input ->
-            return if (demo) {
-                demoInput
-            } else {
-                input?.readText() ?: throw UsageError("input is required when --demo is not set")
-            }
+    private fun getInput(): Sequence<String> = sequence {
+        if (demo) {
+            yieldAll(demoInput.lineSequence())
+            input?.close()
+        } else {
+            input?.useLines { lines -> yieldAll(lines) }
+                ?: throw UsageError("input is required when --demo is not set")
         }
     }
 }

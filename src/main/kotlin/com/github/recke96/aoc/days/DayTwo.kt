@@ -15,27 +15,23 @@ class DayTwo : AoCCommand("day-2") {
 
     override val secondDemo = firstDemo
 
-    override fun solveFirstPart(input: String): String {
-        return input.lineSequence()
-            .filter { it.isNotBlank() }
-            .map { GameGrammar.parseOrThrow(it) }
-            .map { it.id to (it.draws.reduceOrNull(::max) ?: Draw(0, 0, 0)) }
-            .filter { it.second.reds <= 12 }
-            .filter { it.second.greens <= 13 }
-            .filter { it.second.blues <= 14 }
-            .sumOf { it.first }
-            .toString()
-    }
+    override fun solveFirstPart(input: Sequence<String>): String = input
+        .filter { it.isNotBlank() }
+        .map { GameGrammar.parseOrThrow(it) }
+        .map { it.id to (it.draws.reduceOrNull(::max) ?: Draw(0, 0, 0)) }
+        .filter { it.second.reds <= 12 }
+        .filter { it.second.greens <= 13 }
+        .filter { it.second.blues <= 14 }
+        .sumOf { it.first }
+        .toString()
 
-    override fun solveSecondPart(input: String): String {
-        return input.lineSequence()
-            .filter { it.isNotBlank() }
-            .map { GameGrammar.parseOrThrow(it) }
-            .map { it.draws.reduceOrNull(::max) ?: Draw(0, 0, 0) }
-            .map { it.power() }
-            .sum()
-            .toString()
-    }
+    override fun solveSecondPart(input: Sequence<String>): String = input
+        .filter { it.isNotBlank() }
+        .map { GameGrammar.parseOrThrow(it) }
+        .map { it.draws.reduceOrNull(::max) ?: Draw(0, 0, 0) }
+        .map { it.power() }
+        .sum()
+        .toString()
 }
 
 data class Game(val id: Int, val draws: List<Draw>)

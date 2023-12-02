@@ -20,15 +20,13 @@ class DayOne() : AoCCommand("day-1") {
     """.trimIndent()
 
 
-    override fun solveFirstPart(input: String): String {
-        return input.lineSequence()
-            .map { line -> line.firstOrNull { it.isDigit() } to line.lastOrNull { it.isDigit() } }
-            .filter { it.first != null && it.second != null }
-            .map { "${it.first}${it.second}" }
-            .map { it.toInt() }
-            .sum()
-            .toString()
-    }
+    override fun solveFirstPart(input: Sequence<String>): String = input
+        .map { line -> line.firstOrNull { it.isDigit() } to line.lastOrNull { it.isDigit() } }
+        .filter { it.first != null && it.second != null }
+        .map { "${it.first}${it.second}" }
+        .map { it.toInt() }
+        .sum()
+        .toString()
 
 
     private val replacement = mapOf(
@@ -45,15 +43,12 @@ class DayOne() : AoCCommand("day-1") {
 
     private val interestingStrings = replacement.keys.union(replacement.values).toSet()
 
-    override fun solveSecondPart(input: String): String {
-        return input.lineSequence()
-            .filter { it.isNotBlank() }
-            .map { it.findAnyOf(interestingStrings)?.second to it.findLastAnyOf(interestingStrings)?.second }
-            .map { "${replace(it.first)}${replace(it.second)}" }
-            .map { it.toInt() }
-            .sum()
-            .toString()
-    }
+    override fun solveSecondPart(input: Sequence<String>): String = input
+        .map { it.findAnyOf(interestingStrings)?.second to it.findLastAnyOf(interestingStrings)?.second }
+        .map { "${replace(it.first)}${replace(it.second)}" }
+        .map { it.toInt() }
+        .sum()
+        .toString()
 
     private fun replace(digitOrSpelled: String?): String {
         checkNotNull(digitOrSpelled)
