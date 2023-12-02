@@ -12,6 +12,7 @@ repositories {
 
 dependencies {
     implementation("com.github.ajalt.clikt:clikt:4.2.1")
+    implementation("me.alllex.parsus:parsus-jvm:0.6.0")
 }
 
 kotlin {

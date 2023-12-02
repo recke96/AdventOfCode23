@@ -38,7 +38,7 @@ abstract class AoCCommand(name: String) : CliktCommand(name = name) {
             AocQuizPart.Two -> solveSecondPart(input)
         }
 
-        println("Solution $solution")
+        println("Solution \"$solution\"")
     }
 
     private fun getInput(): String {
