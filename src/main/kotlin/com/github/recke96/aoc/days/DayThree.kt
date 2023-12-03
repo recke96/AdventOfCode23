@@ -14,28 +14,13 @@ class DayThree : AoCCommand("day-3") {
         .664.598..
     """.trimIndent()
 
-    override val secondDemo: String
-        get() = TODO("Not yet implemented")
-
+    override val secondDemo = firstDemo
 
     override fun solveFirstPart(input: Sequence<String>): String {
-        val partsAndNumbers = Regex("""(?<number>\d+)|(?<part>[^.\d\sA-Za-z])""")
-        val schematicParts = input.flatMapIndexed { lineNum, line ->
-            partsAndNumbers.findAll(line)
-                .map { match ->
-                    match.groups["number"]?.let { SerialNumber(it.value.toInt(), lineNum, it.range) }
-                        ?: match.groups["part"]?.let { EnginePart(it.value.single(), lineNum, it.range.single()) }
-                        ?: throw IllegalStateException("Shouldn't happen, we know that either of the groups must match")
-                }
-        }.fold(mutableMapOf<Int, MutableList<SchematicPart>>()) { acc, part ->
-            acc.apply {
-                compute(part.row) { _, value ->
-                    value?.apply { add(part) } ?: mutableListOf(part)
-                }
-            }
-        }
+        val schematicParts = parseSchematicParts(input)
 
-        return schematicParts.values.asSequence().flatten()
+        return schematicParts.values.asSequence()
+            .flatten()
             .filterIsInstance<SerialNumber>() // we only care for neighbors of SerialNumbers
             .filter { schematicParts.hasEnginePartNeighbor(it) }
             .sumOf { it.number }
@@ -43,8 +28,43 @@ class DayThree : AoCCommand("day-3") {
     }
 
     override fun solveSecondPart(input: Sequence<String>): String {
-        TODO("Not yet implemented")
+        val schematicParts = parseSchematicParts(input)
+        return schematicParts.values.asSequence()
+            .flatten()
+            .filterIsInstance<EnginePart>()
+            .filter { it.symbol == '*' } // Gears have symbol '*'
+            .map { schematicParts.serialNumbers(it) }
+            .filter { it.size == 2 } // Gears have exactly 2 serial numbers
+            .map { it.fold(1) { acc, serial -> acc * serial.number } } // calculate gear ratio
+            .sum()
+            .toString()
     }
+
+    private fun parseSchematicParts(input: Sequence<String>): Map<Int, List<SchematicPart>> {
+        val partsAndNumbers = Regex("""(?<number>\d+)|(?<part>[^.\d\sA-Za-z])""")
+        return input.flatMapIndexed { lineNum, line ->
+            partsAndNumbers.findAll(line).map { match ->
+                match.groups["number"]?.let { SerialNumber(it.value.toInt(), lineNum, it.range) }
+                    ?: match.groups["part"]?.let { EnginePart(it.value.single(), lineNum, it.range.single()) }
+                    ?: throw IllegalStateException("Shouldn't happen, we know that either of the groups must match")
+            }
+        }.fold(mutableMapOf<Int, MutableList<SchematicPart>>()) { acc, part ->
+            acc.apply {
+                compute(part.row) { _, value ->
+                    value?.apply { add(part) } ?: mutableListOf(part)
+                }
+            }
+        }
+    }
+}
+
+fun Map<Int, List<SchematicPart>>.serialNumbers(part: EnginePart): Set<SerialNumber> {
+    val neighborRows = (part.row - 1)..(part.row + 1)
+    val neighborCols = (part.cols.first - 1)..(part.cols.last + 1)
+    return neighborRows.cartesianProduct(neighborCols) // generate all coordinates of the part & its neighbors
+        .filter { !(it.first == part.row && it.second in part.cols) }
+        .mapNotNull { schematicPartNeighborAt<SerialNumber>(part, it.first, it.second) }
+        .toSet()
 }
 
 fun Map<Int, List<SchematicPart>>.hasEnginePartNeighbor(part: SerialNumber): Boolean {
@@ -52,12 +72,18 @@ fun Map<Int, List<SchematicPart>>.hasEnginePartNeighbor(part: SerialNumber): Boo
     val neighborCols = (part.cols.first - 1)..(part.cols.last + 1)
     return neighborRows.cartesianProduct(neighborCols) // generate all coordinates of the part & its neighbors
         .filter { !(it.first == part.row && it.second in part.cols) } // filter own coordinates
-        .any { hasEnginePartNeighborAt(part, it.first, it.second) }
+        .any { schematicPartNeighborAt<EnginePart>(part, it.first, it.second) != null }
 }
 
-fun Map<Int, List<SchematicPart>>.hasEnginePartNeighborAt(part: SerialNumber, row: Int, col: Int): Boolean {
+inline fun <reified T : SchematicPart> Map<Int, List<SchematicPart>>.schematicPartNeighborAt(
+    part: SchematicPart, row: Int, col: Int
+): T? {
     val partAt = get(row)?.singleOrNull { col in it.cols }
-    return partAt != null && partAt != part && partAt is EnginePart
+    return when (partAt) {
+        part -> null // Is itself, not a neighbor
+        is T -> partAt // Is neighbor of correct type
+        else -> null
+    }
 }
 
 fun IntRange.cartesianProduct(other: IntRange): Set<Pair<Int, Int>> = flatMap { outer ->
