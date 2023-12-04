@@ -33,7 +33,7 @@ graalvmNative {
     toolchainDetection = false
     binaries.named("main") {
         imageName = "advent-of-code"
-        buildArgs.add("-march=native")
+        buildArgs("-march=native", "--gc=epsilon")
         javaLauncher = javaToolchains.launcherFor {
             languageVersion = JavaLanguageVersion.of(21)
             vendor = JvmVendorSpec.matching("GraalVM Community")
