@@ -1,6 +1,6 @@
 package com.github.recke96.aoc.days
 
-class DayThree : AoCCommand("day-3") {
+class Day03 : AoCCommand("day-3") {
     override val firstDemo = """
         467..114..
         ...*......
