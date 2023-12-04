@@ -3,6 +3,7 @@ package com.github.recke96.aoc.days
 import me.alllex.parsus.parser.*
 import me.alllex.parsus.token.literalToken
 import me.alllex.parsus.token.regexToken
+import java.util.Comparator.comparingInt
 
 class Day04 : AoCCommand("day-4") {
 
@@ -15,8 +16,7 @@ class Day04 : AoCCommand("day-4") {
         Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11
     """.trimIndent()
 
-    override val secondDemo: String
-        get() = TODO("Not yet implemented")
+    override val secondDemo = firstDemo
 
     override fun solveFirstPart(input: Sequence<String>): String =
         input.map { ScratchcardGrammar.parseOrThrow(it) }
@@ -25,14 +25,40 @@ class Day04 : AoCCommand("day-4") {
             .toString()
 
     override fun solveSecondPart(input: Sequence<String>): String {
-        TODO("Not yet implemented")
+        val matchesPerCard = input.map { ScratchcardGrammar.parseOrThrow(it) }
+            .toSortedSet(comparingInt(Scratchcard::id))
+
+        val copiesOfCard = matchesPerCard
+            .map(Scratchcard::id)
+            .associateWith { 1 }
+            .toMutableMap()
+        var totalCards = 0
+
+        for (card in matchesPerCard) {
+            val cardCount = copiesOfCard[card.id]!!
+            totalCards += cardCount
+
+            val matches = card.matches()
+            if (matches == 0) {
+                continue
+            }
+
+            for (cardToCopy in (card.id + 1)..(card.id + matches)) {
+                copiesOfCard.computeIfPresent(cardToCopy) { _, count -> count + cardCount }
+            }
+        }
+
+        return totalCards.toString()
     }
 }
 
 data class Scratchcard(val id: Int, val winners: Set<Int>, val own: Set<Int>)
 
-fun Scratchcard.score() = (winners.intersect(own))
-    .let { if (it.isNotEmpty()) 1 shl (it.size - 1) else 0 }
+fun Scratchcard.matches(): Int = winners.fold(0) { matches, current ->
+    if (own.contains(current)) matches + 1 else matches
+}
+
+fun Scratchcard.score() = matches().let { if (it > 0) 1 shl (it - 1) else 0 }
 
 data object ScratchcardGrammar : Grammar<Scratchcard>() {
 
