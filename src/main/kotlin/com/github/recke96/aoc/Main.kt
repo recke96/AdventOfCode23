@@ -5,6 +5,7 @@ import com.github.ajalt.clikt.core.subcommands
 import com.github.recke96.aoc.days.Day01
 import com.github.recke96.aoc.days.Day03
 import com.github.recke96.aoc.days.Day02
+import com.github.recke96.aoc.days.Day04
 
 class AdventOfCode() : CliktCommand() {
     init {
@@ -12,6 +13,7 @@ class AdventOfCode() : CliktCommand() {
             Day01(),
             Day02(),
             Day03(),
+            Day04(),
         )
     }
 
