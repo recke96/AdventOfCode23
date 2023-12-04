@@ -17,8 +17,8 @@ dependencies {
 }
 
 kotlin {
-    jvmToolchain(21)
     sourceSets.all {
+        jvmToolchain(21)
         languageSettings {
             languageVersion = "2.0"
         }
@@ -30,9 +30,6 @@ application {
 }
 
 graalvmNative {
-    binaries.all {
-        resources.autodetect()
-    }
     toolchainDetection = false
     binaries.named("main") {
         imageName = "advent-of-code"
