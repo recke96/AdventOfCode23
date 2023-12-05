@@ -4,6 +4,7 @@ import me.alllex.parsus.parser.*
 import me.alllex.parsus.token.literalToken
 import me.alllex.parsus.token.regexToken
 import java.util.*
+import java.util.stream.LongStream
 
 class Day05 : AoCCommand("day-5") {
     override val firstDemo = """
@@ -54,12 +55,16 @@ class Day05 : AoCCommand("day-5") {
     override fun solveSecondPart(input: Sequence<String>): String {
         val almanac = AlmanacGrammar.parseOrThrow(input.joinToString(separator = "\n"))
 
-        val seedsAsSequence = almanac.seeds
-            .chunked(2) { it[0].until(it[0] + it[1]).asSequence() }
-            .reduce(Sequence<Long>::plus)
+        val seedsAsStream = almanac.seeds
+            .chunked(2) { LongStream.iterate(it[0], Long::inc).limit(it[1]) }
+            .reduce(LongStream::concat)
 
         val mapping = buildMapping(almanac.maps)
-        return seedsAsSequence.minOf(mapping).toString()
+        return seedsAsStream.parallel()
+            .map(mapping)
+            .min()
+            .orElseThrow()
+            .toString()
     }
 
     private fun buildMapping(maps: Iterable<AlmanacMap>): (Long) -> Long {
@@ -68,7 +73,7 @@ class Day05 : AoCCommand("day-5") {
         var currentMapping: (Long) -> Long = { it }
 
         while (currentCat != Category.Location) {
-            val mapping =  currentMapping
+            val mapping = currentMapping
             val map = remaining.find { it.source == currentCat }
                 ?: throw NoSuchElementException("No suitable map for source category $currentCat")
 
