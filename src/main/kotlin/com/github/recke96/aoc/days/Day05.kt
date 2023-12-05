@@ -47,36 +47,37 @@ class Day05 : AoCCommand("day-5") {
     override fun solveFirstPart(input: Sequence<String>): String {
         val almanac = AlmanacGrammar.parseOrThrow(input.joinToString(separator = "\n"))
 
-        var currentCategory = Category.Seed
-        var currentValues = almanac.seeds
-        while (currentCategory != Category.Location) {
-            val map = almanac.maps.find { it.source == currentCategory }
-                ?: throw NoSuchElementException("No suitable map for source category $currentCategory")
-
-            currentValues = currentValues.map(map::get)
-            currentCategory = map.destination
-        }
-
-        return currentValues.min().toString()
+        val mapping = buildMapping(almanac.maps)
+        return almanac.seeds.minOf(mapping).toString()
     }
 
     override fun solveSecondPart(input: Sequence<String>): String {
         val almanac = AlmanacGrammar.parseOrThrow(input.joinToString(separator = "\n"))
 
-        var currentCategory = Category.Seed
-        var currentValues = almanac.seeds
+        val seedsAsSequence = almanac.seeds
             .chunked(2) { it[0].until(it[0] + it[1]).asSequence() }
             .reduce(Sequence<Long>::plus)
 
-        while (currentCategory != Category.Location) {
-            val map = almanac.maps.find { it.source == currentCategory }
-                ?: throw NoSuchElementException("No suitable map for source category $currentCategory")
+        val mapping = buildMapping(almanac.maps)
+        return seedsAsSequence.minOf(mapping).toString()
+    }
 
-            currentValues = currentValues.map(map::get)
-            currentCategory = map.destination
+    private fun buildMapping(maps: Iterable<AlmanacMap>): (Long) -> Long {
+        val remaining = maps.toMutableSet()
+        var currentCat = Category.Seed
+        var currentMapping: (Long) -> Long = { it }
+
+        while (currentCat != Category.Location) {
+            val mapping =  currentMapping
+            val map = remaining.find { it.source == currentCat }
+                ?: throw NoSuchElementException("No suitable map for source category $currentCat")
+
+            remaining.remove(map)
+            currentMapping = { map[mapping(it)] }
+            currentCat = map.destination
         }
 
-        return currentValues.min().toString()
+        return currentMapping
     }
 }
 
