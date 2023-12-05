@@ -5,7 +5,7 @@ import me.alllex.parsus.token.literalToken
 import me.alllex.parsus.token.regexToken
 import java.util.*
 import java.util.concurrent.Callable
-import java.util.concurrent.ForkJoinPool
+import java.util.concurrent.Executors
 import java.util.stream.LongStream
 
 class Day05 : AoCCommand("day-5") {
@@ -55,7 +55,7 @@ class Day05 : AoCCommand("day-5") {
     }
 
     override fun solveSecondPart(input: Sequence<String>): String {
-        ForkJoinPool(Runtime.getRuntime().availableProcessors()).use { pool ->
+        Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2).use { pool ->
             val almanac = AlmanacGrammar.parseOrThrow(input.joinToString(separator = "\n"))
 
             val seedsAsStream = almanac.seeds
