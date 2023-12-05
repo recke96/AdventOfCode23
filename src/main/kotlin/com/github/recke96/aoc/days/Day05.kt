@@ -3,8 +3,7 @@ package com.github.recke96.aoc.days
 import me.alllex.parsus.parser.*
 import me.alllex.parsus.token.literalToken
 import me.alllex.parsus.token.regexToken
-import java.util.NoSuchElementException
-import java.util.TreeMap
+import java.util.*
 
 class Day05 : AoCCommand("day-5") {
     override val firstDemo = """
@@ -43,8 +42,7 @@ class Day05 : AoCCommand("day-5") {
         56 93 4
     """.trimIndent()
 
-    override val secondDemo: String
-        get() = TODO("Not yet implemented")
+    override val secondDemo = firstDemo
 
     override fun solveFirstPart(input: Sequence<String>): String {
         val almanac = AlmanacGrammar.parseOrThrow(input.joinToString(separator = "\n"))
@@ -63,7 +61,22 @@ class Day05 : AoCCommand("day-5") {
     }
 
     override fun solveSecondPart(input: Sequence<String>): String {
-        TODO("Not yet implemented")
+        val almanac = AlmanacGrammar.parseOrThrow(input.joinToString(separator = "\n"))
+
+        var currentCategory = Category.Seed
+        var currentValues = almanac.seeds
+            .chunked(2) { it[0].until(it[0] + it[1]).asSequence() }
+            .reduce(Sequence<Long>::plus)
+
+        while (currentCategory != Category.Location) {
+            val map = almanac.maps.find { it.source == currentCategory }
+                ?: throw NoSuchElementException("No suitable map for source category $currentCategory")
+
+            currentValues = currentValues.map(map::get)
+            currentCategory = map.destination
+        }
+
+        return currentValues.min().toString()
     }
 }
 
