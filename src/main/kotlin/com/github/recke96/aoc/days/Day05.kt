@@ -4,6 +4,8 @@ import me.alllex.parsus.parser.*
 import me.alllex.parsus.token.literalToken
 import me.alllex.parsus.token.regexToken
 import java.util.*
+import java.util.concurrent.Callable
+import java.util.concurrent.ForkJoinPool
 import java.util.stream.LongStream
 
 class Day05 : AoCCommand("day-5") {
@@ -53,18 +55,22 @@ class Day05 : AoCCommand("day-5") {
     }
 
     override fun solveSecondPart(input: Sequence<String>): String {
-        val almanac = AlmanacGrammar.parseOrThrow(input.joinToString(separator = "\n"))
+        ForkJoinPool(Runtime.getRuntime().availableProcessors()).use { pool ->
+            val almanac = AlmanacGrammar.parseOrThrow(input.joinToString(separator = "\n"))
 
-        val seedsAsStream = almanac.seeds
-            .chunked(2) { LongStream.iterate(it[0], Long::inc).limit(it[1]) }
-            .reduce(LongStream::concat)
+            val seedsAsStream = almanac.seeds
+                .chunked(2) { LongStream.iterate(it[0], Long::inc).limit(it[1]) }
+                .reduce(LongStream::concat)
 
-        val mapping = buildMapping(almanac.maps)
-        return seedsAsStream.parallel()
-            .map(mapping)
-            .min()
-            .orElseThrow()
-            .toString()
+            val mapping = buildMapping(almanac.maps)
+            return pool.submit(Callable {
+                seedsAsStream.parallel()
+                    .map(mapping)
+                    .min()
+                    .orElseThrow()
+                    .toString()
+            }).get()
+        }
     }
 
     private fun buildMapping(maps: Iterable<AlmanacMap>): (Long) -> Long {
