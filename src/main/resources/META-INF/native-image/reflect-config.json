@@ -46,10 +46,6 @@
   "fields":[{"name":"aux"}, {"name":"status"}]
 },
 {
-  "name":"java.util.concurrent.atomic.AtomicReference",
-  "fields":[{"name":"value"}]
-},
-{
   "name":"jdk.internal.misc.Unsafe"
 },
 {
