@@ -1,4 +1,5 @@
 plugins {
+    id("org.graalvm.buildtools.native") version "0.9.28"
     kotlin("jvm") version "1.9.21"
     application
 }
@@ -26,4 +27,16 @@ kotlin {
 
 application {
     mainClass.set("com.github.recke96.aoc.MainKt")
+}
+
+graalvmNative {
+    toolchainDetection = false
+    binaries.named("main") {
+        imageName = "advent-of-code"
+        buildArgs("-march=native", "--gc=epsilon")
+        javaLauncher = javaToolchains.launcherFor {
+            languageVersion = JavaLanguageVersion.of(21)
+            vendor = JvmVendorSpec.matching("GraalVM Community")
+        }
+    }
 }
