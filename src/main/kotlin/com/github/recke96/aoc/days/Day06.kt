@@ -51,7 +51,7 @@ fun DistanceRace.findWinningAccelerationTimes(): LongRange {
 
 fun parseRaces(input: Sequence<String>): List<DistanceRace> {
     val numberRegex = Regex("""\d+""")
-    val (timesInput, distancesInput) = input.toList();
+    val (timesInput, distancesInput) = input.toList()
 
     val times = numberRegex.findAll(timesInput).map { it.value.toLong() }
     val distances = numberRegex.findAll(distancesInput).map { it.value.toLong() }
@@ -61,7 +61,7 @@ fun parseRaces(input: Sequence<String>): List<DistanceRace> {
 
 fun parseRace(input: Sequence<String>): DistanceRace {
     val numberRegex = Regex("""\d+""")
-    val (timeInput, distanceInput) = input.toList();
+    val (timeInput, distanceInput) = input.toList()
 
     val time = numberRegex.findAll(timeInput)
         .map { it.value }
