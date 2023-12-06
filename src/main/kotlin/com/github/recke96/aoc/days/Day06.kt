@@ -43,8 +43,8 @@ fun DistanceRace.findWinningAccelerationTimes(): LongRange {
     val common = sqrt((time * time) - (4.0 * record))
 
     // Winning accelerations
-    val lower = ceil((time - common) / 2.0).toLong().let { if (it == this.record) it + 1 else it }
-    val upper = floor((time + common) / 2.0).toLong().let { if (it == this.record) it - 1 else it }
+    val lower = ceil((time - common) / 2.0).toLong()
+    val upper = floor((time + common) / 2.0).toLong()
 
     return lower..upper
 }
