@@ -20,7 +20,7 @@ class Day07() : AoCCommand("day-7") {
         return input
                 .map { HandAndBidGrammar.parseOrThrow(it) }
                 .sortedByDescending { it.hand }
-                .mapIndexed { rank, hb -> hb.bid * (rank + 1) }
+                .mapIndexed { rank, hb -> (hb.bid * (rank + 1)).also { println("${hb.hand} (${hb.hand.type}) ranks $rank: $it") } }
                 .sum()
                 .toString()
     }
@@ -68,6 +68,7 @@ data class Hand(val cards: List<Card>) : Comparable<Hand> {
                     cardCounts.contains(5) -> Type.FiveOfAKind
                     cardCounts.contains(4) -> Type.FourOfAKind
                     cardCounts.contains(3) && cardCounts.contains(2) -> Type.FullHouse
+                    cardCounts.contains(3) -> Type.ThreeOfAKind
                     cardCounts.count { it == 2 } == 2 -> Type.TwoPair
                     cardCounts.contains(2) -> Type.OnePair
                     else -> Type.HighCard
