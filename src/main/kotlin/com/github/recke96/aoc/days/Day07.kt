@@ -19,7 +19,7 @@ class Day07() : AoCCommand("day-7") {
     override fun solveFirstPart(input: Sequence<String>): String {
         return input
                 .map { HandAndBidGrammar.parseOrThrow(it) }
-                .sortedByDescending { it.hand }
+                .sortedBy { it.hand }
                 .mapIndexed { rank, hb -> (hb.bid * (rank + 1)).also { println("${hb.hand} (${hb.hand.type}) ranks $rank: $it") } }
                 .sum()
                 .toString()
