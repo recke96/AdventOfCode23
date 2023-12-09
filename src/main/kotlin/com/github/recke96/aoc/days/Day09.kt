@@ -9,21 +9,24 @@ class Day09 : AoCCommand("day-9") {
         1 3 6 10 15 21
         10 13 16 21 30 45
     """.trimIndent()
-    override val secondDemo: String
-        get() = TODO("Not yet implemented")
+
+    override val secondDemo = firstDemo
 
     override fun solveFirstPart(input: Sequence<String>): String {
-        return input.map { it.split(" ").map { it.toInt() } }
-            .map { predict(it) }
+        return input.map { it.split(" ").map(String::toInt) }
+            .map { predict(it).second }
             .sum()
             .toString()
     }
 
     override fun solveSecondPart(input: Sequence<String>): String {
-        TODO("Not yet implemented")
+        return input.map { it.split(" ").map(String::toInt) }
+            .map { predict(it).first }
+            .sum()
+            .toString()
     }
 
-    private fun predict(dataRow: List<Int>): Int {
+    private fun predict(dataRow: List<Int>): Pair<Int, Int> {
         val diffs: Deque<List<Int>> = LinkedList<List<Int>>().apply { push(dataRow) }
         while (diffs.first.any { it != 0 }) {
             val current = diffs.first.windowed(size = 2, step = 1)
@@ -33,12 +36,14 @@ class Day09 : AoCCommand("day-9") {
 
         }
 
-        var prediction = diffs.pop().last()
+        var forwardPrediction = 0
+        var backwardPrediction = 0
         while (diffs.isNotEmpty()) {
             val diff = diffs.pop()
-            prediction += diff.last()
+            forwardPrediction += diff.last()
+            backwardPrediction = diff.first() - backwardPrediction
         }
 
-        return prediction
+        return backwardPrediction to forwardPrediction
     }
 }
