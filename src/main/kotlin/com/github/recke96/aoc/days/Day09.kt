@@ -31,9 +31,7 @@ class Day09 : AoCCommand("day-9") {
         while (diffs.first.any { it != 0 }) {
             val current = diffs.first.windowed(size = 2, step = 1)
                 .map { it[1] - it[0] }
-                .ifEmpty { listOf(0) }
             diffs.push(current)
-
         }
 
         var forwardPrediction = 0
