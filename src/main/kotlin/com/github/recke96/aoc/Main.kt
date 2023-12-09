@@ -15,6 +15,7 @@ class AdventOfCode() : CliktCommand() {
             Day06(),
             Day07(),
             Day08(),
+            Day09(),
         )
     }
 
