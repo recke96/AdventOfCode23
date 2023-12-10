@@ -1,5 +1,7 @@
 package com.github.recke96.aoc.days
 
+import com.github.recke96.aoc.cartesianProduct
+
 class Day03 : AoCCommand("day-3") {
     override val firstDemo = """
         467..114..
@@ -85,10 +87,6 @@ inline fun <reified T : SchematicPart> Map<Int, List<SchematicPart>>.schematicPa
         else -> null
     }
 }
-
-fun IntRange.cartesianProduct(other: IntRange): Set<Pair<Int, Int>> = flatMap { outer ->
-    other.map { inner -> outer to inner }
-}.toSet()
 
 sealed interface SchematicPart {
     val row: Int
