@@ -16,37 +16,40 @@ class Day11 : AoCCommand("day-11") {
         .......#..
         #...#.....
     """.trimIndent()
-    override val secondDemo: String
-        get() = TODO("Not yet implemented")
 
-    override fun solveFirstPart(input: Sequence<String>): String {
-        val galaxies =
-            input.flatMap(::duplicateEmpty).transpose()
-                .flatMap(::duplicateEmpty).transpose()
-                .flatMapIndexed { row, line ->
-                    line.mapIndexedNotNull { col, char ->
-                        if (char == '#') row to col else null
-                    }
-                }.toList()
+    override val secondDemo = firstDemo
 
-        return galaxies.flatMapIndexed { i: Int, galaxy: Pair<Int, Int> ->
-            galaxies.drop(i + 1).map { other -> galaxy to other }
-        }.sumOf { steps(it.first, it.second) }.toString()
-    }
+    override fun solveFirstPart(input: Sequence<String>): String = distances(input.toList(), 2)
 
-    private fun steps(a: Pair<Int, Int>, b: Pair<Int, Int>): Int = abs(a.first - b.first) + abs(a.second - b.second)
+    override fun solveSecondPart(input: Sequence<String>): String = distances(input.toList(), 1_000_000)
 
-    private fun Sequence<String>.transpose(): Sequence<String> = sequence {
-        val allLines = this@transpose.toList()
-        for (i in allLines.first().indices) {
-            yield(allLines.map { it[i] }.joinToString(""))
+    private fun distances(inputList: List<String>, expansionCompensation: Long): String {
+        val emptyRows = inputList.mapIndexedNotNull { row, line -> if (line.all { it == '.' }) row.toLong() else null }
+        val emptyCols =
+            inputList.first().indices.mapNotNull { col -> if (inputList.all { it[col] == '.' }) col.toLong() else null }
+
+        val galaxies = inputList.flatMapIndexed { row, line ->
+            line.mapIndexedNotNull { col, char ->
+                if (char == '#') row.toLong() to col.toLong() else null
+            }
         }
+
+        return galaxies.flatMapIndexed { i: Int, galaxy: Pair<Long, Long> ->
+            galaxies.drop(i + 1).map { other -> galaxy to other }
+        }.sumOf {
+            val rowSteps = stretch(it.first.first, it.second.first).steps(emptyRows, expansionCompensation)
+            val colSteps = stretch(it.first.second, it.second.second).steps(emptyCols, expansionCompensation)
+
+            rowSteps + colSteps
+        }.toString()
     }
 
-    private fun duplicateEmpty(stretch: String): List<String> =
-        if (stretch.all { it == '.' }) listOf(stretch, stretch) else listOf(stretch)
+    private fun stretch(a: Long, b: Long): LongRange = if (a <= b) a..b else b..a
 
-    override fun solveSecondPart(input: Sequence<String>): String {
-        TODO("Not yet implemented")
+    private fun LongRange.steps(emptyStretches: List<Long>, expansionCompensation: Long): Long {
+        val steps = abs(first - last)
+        val emptyExpansionCompensation = (expansionCompensation - 1) * emptyStretches.count { it in this }
+
+        return steps + emptyExpansionCompensation
     }
 }
